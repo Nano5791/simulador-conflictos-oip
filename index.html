@@ -5,15 +5,19 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Simulador de Conflictos de Interés - OIP</title>
   <link rel="stylesheet" href="style.css" />
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 </head>
 <body>
   <div class="container">
-    <h1>Simulador de Conflictos de Interés</h1>
-    <p>Responda las siguientes preguntas para evaluar su situación.</p>
+    <header>
+      <h1>Simulador de Conflictos de Interés</h1>
+      <p>Responda las siguientes preguntas para evaluar su situación.</p>
+    </header>
 
     <div id="pregunta-container"></div>
     <div id="resultado" class="oculto"></div>
-    <button id="btn-inicio" class="btn">Iniciar</button>
+
+    <button id="btn-inicio" class="btn btn-inicio">Iniciar Simulador</button>
   </div>
 
   <script src="script.js"></script>

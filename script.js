@@ -1,157 +1,225 @@
-// Base de datos del flujo - Mapeo completo del Excel
+// Base de datos del flujo (tu simulador completo)
 const flujo = {
+  nombre_usuario: {
+    pregunta: "Para comenzar, por favor ingrese su nombre y apellido:",
+    tipo: "texto",
+    siguiente: "inicio"
+  },
   inicio: {
-    pregunta: "¿Eres funcionario público equivalente o superior a Director/a General del Poder Ejecutivo de la Ciudad, o máxima autoridad de un Ente Descentralizado o Sociedad de la Ciudad?",
+    pregunta: "¿Cuál es tu situación actual?",
+    tipo: "multiple_choice",
     opciones: [
-      { texto: "Sí", proximo: "tipo_actividad" },
-      { texto: "No", proximo: "fui_funcionario" }
+      { valor: "soy_funcionario", texto: "Soy funcionario/a - agente público", siguiente: "jerarquia_actual" },
+      { valor: "fui_funcionario", texto: "Fui funcionario/a", siguiente: "fue_sujeto_ddjj" },
+      { valor: "voy_a_ser_designado", texto: "Voy a ser designado en un nuevo cargo público", siguiente: "jerarquia_futura" }
+    ]
+  },
+  // === RAMA 1: SOY FUNCIONARIO ===
+  jerarquia_actual: {
+    pregunta: "¿Cuál es tu jerarquía actual?",
+    tipo: "multiple_choice",
+    opciones: [
+      { 
+        valor: "director_general_superior", 
+        texto: "EQUIVALENTE o SUPERIOR a Director/a General del Poder Ejecutivo de la Ciudad, o soy MÁXIMA AUTORIDAD de Ente Descentralizado o Sociedad de la Ciudad", 
+        siguiente: "actividad_junto_cargo_alto" 
+      },
+      { 
+        valor: "agente_publico", 
+        texto: "Soy funcionario/a - agente público", 
+        siguiente: "actividad_junto_cargo_basico" 
+      }
     ]
   },
 
-  tipo_actividad: {
-    pregunta: "¿Tu actividad es de carácter privada?",
+  actividad_junto_cargo_alto: {
+    pregunta: "¿Desarrollás otra actividad junto al cargo?",
+    tipo: "yes_no",
     opciones: [
-      { texto: "Privada", proximo: "actividad_privada_prevista" },
-      { texto: "Pública", proximo: "no_conflicto" },
-      { texto: "Ninguna de las anteriores", proximo: "consulta_ofip" }
+      { valor: "si", texto: "SÍ", siguiente: "tipo_actividad_privada_alto" },
+      { valor: "no", texto: "NO", resultado: "NO HAY LIMITACIÓN/INCOMPATIBILIDAD" }
     ]
   },
 
-  actividad_privada_prevista: {
-    pregunta: "¿Además del cargo público, tienes previsto desarrollar otra actividad privada?",
+  actividad_junto_cargo_basico: {
+    pregunta: "¿Desarrollás otra actividad junto al cargo?",
+    tipo: "yes_no",
     opciones: [
-      { texto: "Sí", proximo: "socio_sociedad" },
-      { texto: "No", proximo: "no_conflicto" }
+      { valor: "si", texto: "SÍ", siguiente: "tipo_actividad_privada_basico" },
+      { valor: "no", texto: "NO", resultado: "No se visualiza una situación de conflicto de intereses." }
     ]
   },
 
-  socio_sociedad: {
-    pregunta: "¿Vas a constituir una sociedad o adquirir participación en una existente? (art. 27 inc. d)",
+  tipo_actividad_privada_alto: {
+    pregunta: "¿Qué tipo de actividad desarrollás?",
+    tipo: "multiple_choice",
     opciones: [
-      { texto: "Sí", proximo: "objeto_social_propio" },
-      { texto: "No", proximo: "es_docente" }
+      { valor: "instituciones_no_estatales", texto: "Soy socio, asociado, directivo, presto servicios a instituciones no estatales", siguiente: "evaluacion_conflicto_servicios_alto" },
+      { valor: "forma_autonoma", texto: "En forma autónoma, individual, personal o independiente", siguiente: "tipo_profesion_liberal_alto" },
+      { valor: "docencia", texto: "Ejerzo la docencia", siguiente: "recomendacion_docente" }
     ]
   },
 
-  objeto_social_propio: {
-    pregunta: "¿El objeto social de la sociedad se encuentra bajo tu ámbito de competencia?",
+  tipo_actividad_privada_basico: {
+    pregunta: "¿Qué tipo de actividad desarrollás?",
+    tipo: "multiple_choice",
     opciones: [
-      { texto: "Sí", proximo: "influencia_cotizacion" },
-      { texto: "No", proximo: "es_docente" }
+      { valor: "instituciones_no_estatales", texto: "Soy socio, asociado, directivo, presto servicios a instituciones no estatales", siguiente: "evaluacion_conflicto_servicios_basico" },
+      { valor: "forma_autonoma", texto: "En forma autónoma, individual, personal o independiente", siguiente: "tipo_profesion_liberal_basico" },
+      { valor: "docencia", texto: "Ejerzo la docencia", siguiente: "recomendacion_docente" }
     ]
   },
 
-  influencia_cotizacion: {
-    pregunta: "¿La cotización de la sociedad puede verse influenciada por los actos que emitas en razón de tu cargo? (art. 37 inc. a)",
+  evaluacion_conflicto_servicios_alto: {
+    pregunta: "¿Tu actividad involucra alguna de estas situaciones?",
+    tipo: "multiple_choice",
     opciones: [
-      { texto: "Sí", proximo: "incompatibilidad_actividad" },
-      { texto: "No", proximo: "es_docente" }
+      { valor: "vinculaciones_organismos", texto: "Tengo vinculaciones con organismos o empresas de la Ciudad (art. 27 inc. a)", siguiente: "conflicto_potencial" },
+      { valor: "gestiones_representacion", texto: "Ejercés profesión liberal, prestás servicios, efectuás gestiones, dirigís, administrás, representás y/o patrocinás (art. 27 inc. b)", siguiente: "conflicto_potencial" },
+      { valor: "instituciones_sectoriales", texto: "Sos socio, asociado, directivo o prestás servicios a instituciones no estatales dedicadas a defensa o representación de intereses económicos sectoriales (art. 27 inc. c)", siguiente: "conflicto_potencial" }
     ]
   },
 
-  es_docente: {
+  evaluacion_conflicto_servicios_basico: {
+    pregunta: "¿Tu actividad involucra alguna de estas situaciones?",
+    tipo: "multiple_choice",
+    opciones: [
+      { valor: "vinculaciones_organismos", texto: "Tengo vinculaciones con organismos o empresas de la Ciudad (art. 27 inc. a)", siguiente: "conflicto_potencial" },
+      { valor: "gestiones_representacion", texto: "Ejercés profesión liberal, prestás servicios, efectuás gestiones, dirigís, administrás, representás y/o patrocinás (art. 27 inc. b)", siguiente: "conflicto_potencial" },
+      { valor: "instituciones_sectoriales", texto: "Sos socio, asociado, directivo o prestás servicios a instituciones no estatales dedicadas a defensa o representación de intereses económicos sectoriales (art. 27 inc. c)", siguiente: "conflicto_potencial" }
+    ]
+  },
+
+  tipo_profesion_liberal_alto: {
+    pregunta: "¿Qué tipo de actividad profesional ejerces?",
+    tipo: "multiple_choice",
+    opciones: [
+      { valor: "profesion_liberal", texto: "Ejerzo una profesión liberal de cualquier naturaleza en las que tengo vinculaciones con organismos (art. 27 inc. a)", siguiente: "es_docencia_profesion" },
+      { valor: "servicios_remunerados", texto: "Ejerzo servicios, efectúo gestiones, dirijo, administro, represento y/o patrocino, en forma remunerada u honoraria (art. 27 inc. b)", siguiente: "conflicto_potencial" },
+      { valor: "instituciones_sectoriales", texto: "Soy socio, asociado, directivo o presto servicios a instituciones no estatales (art. 27 inc. c)", siguiente: "conflicto_potencial" }
+    ]
+  },
+
+  tipo_profesion_liberal_basico: {
+    pregunta: "¿Qué tipo de actividad profesional ejerces?",
+    tipo: "multiple_choice",
+    opciones: [
+      { valor: "profesion_liberal", texto: "Ejerzo una profesión liberal de cualquier naturaleza en las que tengo vinculaciones con organismos (art. 27 inc. a)", siguiente: "es_docencia_profesion" },
+      { valor: "servicios_remunerados", texto: "Ejerzo servicios, efectúo gestiones, dirijo, administro, represento y/o patrocino, en forma remunerada u honoraria (art. 27 inc. b)", siguiente: "conflicto_potencial" },
+      { valor: "instituciones_sectoriales", texto: "Soy socio, asociado, directivo o presto servicios a instituciones no estatales (art. 27 inc. c)", siguiente: "conflicto_potencial" }
+    ]
+  },
+
+  es_docencia_profesion: {
     pregunta: "¿Es una actividad docente?",
+    tipo: "yes_no",
     opciones: [
-      { texto: "Sí", proximo: "recomendacion_docente" },
-      { texto: "No", proximo: "provee_bienes" }
+      { valor: "si", texto: "SÍ", siguiente: "recomendacion_docente" },
+      { valor: "no", texto: "NO", siguiente: "conflicto_potencial" }
     ]
-  },
-
-  provee_bienes: {
-    pregunta: "¿Provees o vas a proveer bienes o servicios al organismo donde ejerces funciones o a entidades bajo tu jurisdicción? (art. 26 inc. b)",
-    opciones: [
-      { texto: "Sí", proximo: "incompatibilidad_bienes" },
-      { texto: "No", proximo: "relaciones_fiscalizadas" }
-    ]
-  },
-
-  relaciones_fiscalizadas: {
-    pregunta: "¿Diriges, asesoras o mantienes relaciones contractuales con empresas directamente fiscalizadas por tu organismo? (art. 26 inc. c)",
-    opciones: [
-      { texto: "Sí", proximo: "consulta_ofip" },
-      { texto: "No", proximo: "no_conflicto" }
-    ]
-  },
-
-  fui_funcionario: {
-    pregunta: "¿Fuiste funcionario público?",
-    opciones: [
-      { texto: "Sí", proximo: "anio_desvinculacion" },
-      { texto: "No", proximo: "va_a_ser_designado" }
-    ]
-  },
-
-  anio_desvinculacion: {
-    pregunta: "¿Pasó más de un año desde que dejaste la función pública? (art. 51)",
-    opciones: [
-      { texto: "Sí", proximo: "no_incompatibilidad" },
-      { texto: "No", proximo: "no_incompatibilidad" }
-    ]
-  },
-
-  va_a_ser_designado: {
-    pregunta: "¿Vas a ser designado en un nuevo cargo público?",
-    opciones: [
-      { texto: "Sí", proximo: "cargo_regula_entidad" },
-      { texto: "No", proximo: "no_incompatibilidad" }
-    ]
-  },
-
-  cargo_regula_entidad: {
-    pregunta: "¿Tu nuevo cargo está en un organismo que controla o regula la entidad en la que trabajaste? (art. 50)",
-    opciones: [
-      { texto: "Sí", proximo: "anio_desvinculacion" },
-      { texto: "No", proximo: "intervino_privatizacion" }
-    ]
-  },
-
-  intervino_privatizacion: {
-    pregunta: "¿Interviniste en procesos de privatización o concesión de servicio público? (art. 50)",
-    opciones: [
-      { texto: "Sí", proximo: "tres_anios_privatizacion" },
-      { texto: "No", proximo: "no_incompatibilidad" }
-    ]
-  },
-
-  tres_anios_privatizacion: {
-    pregunta: "¿Han transcurrido más de 3 años desde tu última intervención en procesos de privatización o concesión?",
-    opciones: [
-      { texto: "Sí", proximo: "no_incompatibilidad" },
-      { texto: "No", proximo: "consulta_ofip" }
-    ]
-  },
-
-  // Resultados finales
-  no_conflicto: {
-    tipo: "resultado",
-    mensaje: "No se visualiza una situación de conflicto de intereses."
-  },
-
-  no_incompatibilidad: {
-    tipo: "resultado",
-    mensaje: "NO HAY LIMITACIÓN/INCOMPATIBILIDAD."
-  },
-
-  incompatibilidad_actividad: {
-    tipo: "resultado",
-    mensaje: "La actividad es incompatible con el ejercicio de la función pública. Comuníquese con la OFIP.",
-    clase: "advertencia"
-  },
-
-  incompatibilidad_bienes: {
-    tipo: "resultado",
-    mensaje: "Usted se encuentra realizando una actividad incompatible con la función pública. Comuníquese con la OFIP.",
-    clase: "advertencia"
   },
 
   recomendacion_docente: {
     tipo: "resultado",
-    mensaje: "En principio, la actividad docente es compatible con el ejercicio de la función pública. Igualmente, se sugiere que consultes tu situación con la OFIP."
+    mensaje: "En principio, la actividad docente que desarrollas simultáneamente no configura un conflicto de intereses, de todos modos, se sugiere que consultes tu situación con la OFIP."
   },
 
-  consulta_ofip: {
+  conflicto_potencial: {
     tipo: "resultado",
-    mensaje: "En principio, la actividad es compatible con el ejercicio de la función pública. Sin embargo, se sugiere que consultes con la OFIP."
+    mensaje: "Podrías estar realizando una actividad privada sobre la cual es factible que se configure una incompatiblidad. Te recomendamos consultar tu situación en la OFIP."
+  },
+
+  // === RAMA 2: FUI FUNCIONARIO ===
+  fue_sujeto_ddjj: {
+    pregunta: "¿Fue sujeto obligado a presentar DDJJ art. 9?",
+    tipo: "yes_no",
+    opciones: [
+      { valor: "si", texto: "SÍ", siguiente: "realizo_gestiones" },
+      { valor: "no", texto: "NO", resultado: "NO HAY LIMITACIÓN/INCOMPATIBILIDAD" }
+    ]
+  },
+
+  realizo_gestiones: {
+    pregunta: "¿Realizás alguna de estas actividades?",
+    tipo: "multiple_choice",
+    opciones: [
+      { valor: "gestiones_administrativas", texto: "Realizar gestiones administrativas o representar a terceros ante el organismo donde trabajaste o ante entidades bajo tu jurisdicción (art. 49 inc. a)", siguiente: "paso_un_ano_gestiones" },
+      { valor: "juicios_ciudad", texto: "Participar en juicios contra la Ciudad de Buenos Aires como abogado, perito o de cualquier otra forma (art. 49 inc. b)", resultado: "NO HAY LIMITACIÓN/INCOMPATIBILIDAD" },
+      { valor: "concesiones", texto: "Vender bienes o servicios, obtener concesiones o adjudicaciones en el organismo donde trabajaste, ya sea directamente o a través de terceros (art. 49 inc. c)", resultado: "NO HAY LIMITACIÓN/INCOMPATIBILIDAD" },
+      { valor: "relaciones_contractuales", texto: "Mantener relaciones contractuales con entidades directamente fiscalizadas por el organismo en que trabajaste (art. 49 inc. d)", siguiente: "paso_un_ano_contractual" }
+    ]
+  },
+
+  paso_un_ano_gestiones: {
+    pregunta: "¿Pasó un año desde que se desempeñó en la función pública? (art. 51)",
+    tipo: "yes_no",
+    opciones: [
+      { valor: "si", texto: "SÍ", resultado: "NO HAY LIMITACIÓN/INCOMPATIBILIDAD" },
+      { valor: "no", texto: "NO", siguiente: "tipo_actividad_limitada" }
+    ]
+  },
+
+  paso_un_ano_contractual: {
+    pregunta: "¿Pasó un año desde que se desempeñó en la función pública? (art. 51)",
+    tipo: "yes_no",
+    opciones: [
+      { valor: "si", texto: "SÍ", resultado: "NO HAY LIMITACIÓN/INCOMPATIBILIDAD" },
+      { valor: "no", texto: "NO", siguiente: "tipo_actividad_limitada" }
+    ]
+  },
+
+  tipo_actividad_limitada: {
+    tipo: "resultado",
+    mensaje: "Podrías estar realizando una actividad privada sobre la cual es factible que se configure una incompatiblidad. Te recomendamos consultar tu situación en la OFIP."
+  },
+
+  // === RAMA 3: VOY A SER DESIGNADO ===
+  jerarquia_futura: {
+    pregunta: "¿Cuál será tu jerarquía?",
+    tipo: "multiple_choice",
+    opciones: [
+      { 
+        valor: "director_general_superior", 
+        texto: "Mi jerarquía será EQUIVALENTE o SUPERIOR a Director/a General del Poder Ejecutivo de la Ciudad, o seré MÁXIMA AUTORIDAD de Ente Descentralizado", 
+        siguiente: "actividad_privada_futura" 
+      },
+      { 
+        valor: "agente_publico", 
+        texto: "Seré funcionario/a - agente público", 
+        siguiente: "actividad_privada_futura_basico" 
+      }
+    ]
+  },
+
+  actividad_privada_futura: {
+    pregunta: "¿Vas a desarrollar una actividad de carácter privada?",
+    tipo: "yes_no",
+    opciones: [
+      { valor: "si", texto: "Voy a desarrollar una actividad de carácter privada", siguiente: "paso_un_ano" },
+      { valor: "no", texto: "No", siguiente: "nuevo_cargo_publico" }
+    ]
+  },
+
+  actividad_privada_futura_basico: {
+    pregunta: "¿Vas a desarrollar una actividad de carácter privada?",
+    tipo: "yes_no",
+    opciones: [
+      { valor: "si", texto: "Voy a desarrollar una actividad de carácter privada", siguiente: "paso_un_ano" },
+      { valor: "no", texto: "No", siguiente: "nuevo_cargo_publico" }
+    ]
+  },
+
+  paso_un_ano: {
+    pregunta: "¿Pasó un año desde que se desempeñó en la función pública? (art. 49)",
+    tipo: "yes_no",
+    opciones: [
+      { valor: "si", texto: "SÍ", resultado: "NO HAY INCOMPATIBILIDAD" },
+      { valor: "no", texto: "NO", siguiente: "tipo_actividad_limitada" }
+    ]
+  },
+
+  nuevo_cargo_publico: {
+    resultado: "NO HAY LIMITACIÓN/INCOMPATIBILIDAD"
   }
 };
 
@@ -159,6 +227,9 @@ const flujo = {
 let pasoActual = null;
 let temporizador = null;
 let segundos = 0;
+let nombreUsuario = "";
+let respuestas = {};
+let tokenUsuario = "";
 
 // Elementos del DOM
 const preguntaContainer = document.getElementById("pregunta-container");
@@ -175,6 +246,11 @@ contadorDiv.style.textAlign = "right";
 contadorDiv.classList.add("oculto");
 document.querySelector(".container").appendChild(contadorDiv);
 
+// Generar token único (8 caracteres)
+function generarToken() {
+  return Math.random().toString(36).substr(2, 8).toUpperCase();
+}
+
 // Formatear tiempo: segundos → mm:ss
 function formatearTiempo(seg) {
   const mins = Math.floor(seg / 60);
@@ -184,9 +260,12 @@ function formatearTiempo(seg) {
 
 // Iniciar simulador
 btnInicio.addEventListener("click", () => {
-  if (btnInicio.textContent === "Iniciar" || btnInicio.textContent === "Volver a empezar") {
-    pasoActual = "inicio";
+  if (btnInicio.textContent.includes("Iniciar") || btnInicio.textContent.includes("Volver")) {
+    pasoActual = "nombre_usuario";
     segundos = 0;
+    respuestas = {};
+    tokenUsuario = generarToken();
+
     contadorDiv.classList.remove("oculto");
     contadorDiv.textContent = `Tiempo: 00:00`;
 
@@ -208,37 +287,125 @@ function mostrarPregunta(id) {
   const nodo = flujo[id];
   if (!nodo) return;
 
-  if (nodo.tipo === "resultado") {
-    clearInterval(temporizador);
-    mostrarResultado(nodo.mensaje, nodo.clase);
+  if (id === "nombre_usuario") {
+    preguntaContainer.innerHTML = `
+      <p><strong>${nodo.pregunta}</strong></p>
+      <input type="text" id="input-nombre" class="input-nombre" placeholder="Ej: María González" autofocus>
+      <button onclick="guardarNombre()" class="btn-continuar">Continuar</button>
+    `;
     return;
   }
+
+  if (nodo.resultado) {
+    clearInterval(temporizador);
+    mostrarResultado(nodo.resultado);
+    return;
+  }
+
+  if (nodo.tipo === "resultado") {
+    clearInterval(temporizador);
+    mostrarResultado(nodo.mensaje);
+    return;
+  }
+
+  const preguntaTexto = nodo.pregunta;
+
+  const opcionesHTML = nodo.opciones.map(op => 
+    `<button onclick="irA('${op.siguiente || ''}', '${op.valor}', '${preguntaTexto}', '${op.texto}')">${op.texto}</button>`
+  ).join('');
 
   preguntaContainer.innerHTML = `
     <p><strong>${nodo.pregunta}</strong></p>
     <div class="opciones">
-      ${nodo.opciones.map(op => 
-        `<button onclick="irA('${op.proximo}')">${op.texto}</button>`
-      ).join('')}
+      ${opcionesHTML}
     </div>
   `;
 }
 
+// Guardar nombre
+function guardarNombre() {
+  const input = document.getElementById("input-nombre");
+  nombreUsuario = input.value.trim();
+  if (!nombreUsuario) {
+    alert("Por favor, ingrese su nombre.");
+    return;
+  }
+  pasoActual = "inicio";
+  mostrarPregunta(pasoActual);
+}
+
 // Ir a siguiente paso
-function irA(proximo) {
-  pasoActual = proximo;
-  mostrarPregunta(proximo);
+function irA(proximo, valor = null, preguntaTexto = "", respuestaTexto = "") {
+  if (preguntaTexto && respuestaTexto) {
+    respuestas[preguntaTexto] = respuestaTexto;
+  }
+
+  if (proximo) {
+    pasoActual = proximo;
+    mostrarPregunta(proximo);
+  } else {
+    clearInterval(temporizador);
+    mostrarResultado("Respuesta registrada. Gracias.");
+  }
 }
 
 // Mostrar resultado final
-function mostrarResultado(mensaje, clase = "") {
+function mostrarResultado(mensaje) {
+  let respuestasHTML = "<h3>Respuestas:</h3><ul>";
+  for (let preg in respuestas) {
+    respuestasHTML += `<li><strong>${preg}</strong>: ${respuestas[preg]}</li>`;
+  }
+  respuestasHTML += "</ul>";
+
+  const tiempoTotal = formatearTiempo(segundos);
+
   preguntaContainer.innerHTML = "";
   resultadoDiv.innerHTML = `
-    <p class="${clase} recomendacion">${mensaje}</p>
-    <p><strong>Tiempo total: ${formatearTiempo(segundos)}</strong></p>
+    <h3>Resultado para: ${nombreUsuario}</h3>
+    <p><strong>Token de sesión:</strong> ${tokenUsuario}</p>
+    <p><strong>Conclusión:</strong> ${mensaje}</p>
+    ${respuestasHTML}
+    <p><strong>Tiempo total: ${tiempoTotal}</strong></p>
+    <button onclick="descargarPDF()" class="btn-csv">📄 Descargar como PDF</button>
   `;
   resultadoDiv.classList.remove("oculto");
 
   btnInicio.textContent = "Volver a empezar";
   btnInicio.classList.remove("oculto");
+}
+
+// Descargar resultado en PDF
+function descargarPDF() {
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF();
+
+  doc.setFontSize(18);
+  doc.text("Simulador de Conflictos de Interés", 20, 20);
+  doc.setFontSize(12);
+  doc.text(`Nombre: ${nombreUsuario}`, 20, 30);
+  doc.text(`Token: ${tokenUsuario}`, 20, 40);
+  doc.text(`Tiempo total: ${formatearTiempo(segundos)}`, 20, 50);
+
+  let y = 60;
+  doc.text("Resultado:", 20, y);
+  y += 10;
+  doc.setFont("helvetica", "italic");
+  const mensaje = resultadoDiv.querySelector("p:nth-child(2)").textContent.replace("Conclusión: ", "");
+  doc.text(mensaje, 20, y, { maxWidth: 170 });
+  y += 20;
+
+  doc.setFont("helvetica", "normal");
+  doc.text("Respuestas:", 20, y);
+  y += 10;
+
+  for (let preg in respuestas) {
+    if (y > 270) {
+      doc.addPage();
+      y = 20;
+    }
+    doc.text(`${preg}: ${respuestas[preg]}`, 20, y);
+    y += 8;
+  }
+
+  doc.save(`simulador_${tokenUsuario}.pdf`);
 }
